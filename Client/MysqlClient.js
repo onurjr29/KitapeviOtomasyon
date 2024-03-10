@@ -24,9 +24,10 @@ class MysqlClient {
         })
     }
 
-    query(sql, callback){
-        this.con.query(sql, callback);
+    query(sql,param,callback){
+        this.con.query(sql, param, callback);
     }
 }
+
 
 module.exports = MysqlClient;

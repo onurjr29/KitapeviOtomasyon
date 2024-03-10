@@ -1,3 +1,4 @@
+// const Connection = require('mysql/lib/Connection');
 const mysqlClient = require('../Client/mysqlClient');
 
 const client = new mysqlClient();
@@ -21,7 +22,7 @@ function getKategoriAllList() {
 }
 
 function getKategoriById(id) {
-    client.query(`Select * from onur.kategori where kategori_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.kategori where kategori_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -40,7 +41,7 @@ function getKategoriById(id) {
 }
 
 function getKategoriByName(name) {
-    client.query(`Select * from onur.kategori where kategori_adi = ${name}`, (err, result) => {
+    client.query(`Select * from onur.kategori where kategori_adi = ?`, [name], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -69,7 +70,7 @@ function getKitaplarAllList(){
             return{
                 kitap_id: row.kitap_id,
                 kitap_adi: row.kitap_adi,
-                kitap_yazar: row.kitap_yazar,
+                kitap_yazar: row.kitap_yazar, 
                 kitap_tur: row.kitap_tur,
                 kitap_sayfa: row.kitap_sayfa,
                 kitap_basim: row.kitap_basim,
@@ -84,7 +85,7 @@ function getKitaplarAllList(){
 }
 
 function getKitaplarById(id){
-    client.query(`Select * from onur.kitaplar where kitap_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -109,7 +110,7 @@ function getKitaplarById(id){
 }
 
 function getKitaplarByName(name){
-    client.query(`Select * from onur.kitaplar where kitap_adi = ${name}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_adi = ?`, [name], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Kitap bulunamadı");
@@ -134,7 +135,7 @@ function getKitaplarByName(name){
 }
 
 function getKitaplarByYazar(yazar){
-    client.query(`Select * from onur.kitaplar where kitap_yazar = ${yazar}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_yazar = ?`, [yazar], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Kitap bulunamadı");
@@ -159,7 +160,7 @@ function getKitaplarByYazar(yazar){
 }
 
 function getKitaplarByTur(tur){
-    client.query(`Select * from onur.kitaplar where kitap_tur = ${tur}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_tur = ?`, [tur], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -184,7 +185,7 @@ function getKitaplarByTur(tur){
 }
 
 function getKitaplarBySayfa(sayfa){
-    client.query(`Select * from onur.kitaplar where kitap_sayfa = ${sayfa}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_sayfa = ?`, sayfa, (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -209,7 +210,7 @@ function getKitaplarBySayfa(sayfa){
 }
 
 function getKitaplarByBasim(basim){
-    client.query(`Select * from onur.kitaplar where kitap_basim = ${basim}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_basim = ?`, [basim],(err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -234,7 +235,7 @@ function getKitaplarByBasim(basim){
 }
 
 function getKitaplarByBaski(baski){
-    client.query(`Select * from onur.kitaplar where kitap_baski = ${baski}`, (err, result) => {
+    client.query(`Select * from onur.kitaplar where kitap_baski = ?`, [baski], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -283,7 +284,7 @@ function getKullaniciAllList(){
 }
 
 function getKullaniciById(id){
-    client.query(`Select * from onur.kullanici where kullanici_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.kullanici where kullanici_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Kullanici bulunamadı");
@@ -329,7 +330,7 @@ function getPersonelAllList(){
 }
 
 function getPersonelById(id){
-    client.query(`Select * from onur.personel where personel_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_id = ?`, [id],(err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Personel bulunamadı");
@@ -352,7 +353,7 @@ function getPersonelById(id){
 }
 
 function getPersonelListByName(name){
-    client.query(`Select * from onur.personel where personel_adi = ${name}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_adi = ?`, [name],(err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -375,7 +376,7 @@ function getPersonelListByName(name){
 }
 
 function getPersonelListBySurname(surname){
-    client.query(`Select * from onur.personel where personel_soyadi = ${surname}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_soyadi = ?`, [surname], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -398,7 +399,7 @@ function getPersonelListBySurname(surname){
 }
 
 function getPersonelByTc(tc){
-    client.query(`Select * from onur.personel where personel_tc = ${tc}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_tc = ?`, [tc], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Personel bulunamadı");
@@ -421,7 +422,7 @@ function getPersonelByTc(tc){
 }
 
 function getPersonelByPhone(phone) {
-    client.query(`Select * from onur.personel where personel_tel = ${phone}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_tel = ?`, [phone], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Personel bulunamadı");
@@ -444,7 +445,7 @@ function getPersonelByPhone(phone) {
 }
 
 function getPersonelListByMail(mail){
-    client.query(`Select * from onur.personel where personel_email = ${mail}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_email = ?`, [phone], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -467,7 +468,7 @@ function getPersonelListByMail(mail){
 }
 
 function getPersonelByUsername(username){
-    client.query(`Select * from onur.personel where personel_username = ${username}`, (err, result) => {
+    client.query(`Select * from onur.personel where personel_username = ?`, [username], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Personel bulunamadı");
@@ -490,7 +491,7 @@ function getPersonelByUsername(username){
 }
 
 function getSiparisListByUyeId(id){
-    client.query(`Select * from onur.siparis where uye_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.siparis where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Siparis bulunamadı");
@@ -512,7 +513,7 @@ function getSiparisListByUyeId(id){
 }
 
 function getSiparisByKitapId(id){
-    client.query(`Select * from onur.siparis where kitap_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.siparis where kitap_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Siparis bulunamadı");
@@ -534,7 +535,7 @@ function getSiparisByKitapId(id){
 }
 
 function getSiparisByAlimTarih(tarih){
-    client.query(`Select * from onur.siparis where siparis_tarih = ${tarih}`, (err, result) => {
+    client.query(`Select * from onur.siparis where siparis_tarih = ?`, [tarih], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Siparis bulunamadı");
@@ -556,7 +557,7 @@ function getSiparisByAlimTarih(tarih){
 }
 
 function getSiparisBySiparisId(id){
-    client.query(`Select * from onur.siparis where siparis_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.siparis where siparis_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Sipariş bulunamadı");
@@ -605,7 +606,7 @@ function getUyeAllList(){
 }
 
 function getUyeById(id){
-    client.query(`Select * from onur.uye where uye_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.uye where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Uye bulunamadı");
@@ -627,7 +628,7 @@ function getUyeById(id){
 }
 
 function getUyeByName(name){
-    client.query(`Select * from onur.uye where uye_adi = ${name}`, (err, result) => {
+    client.query(`Select * from onur.uye where uye_adi = ?`, [name], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Uye bulunamadı");
@@ -649,7 +650,7 @@ function getUyeByName(name){
 }
 
 function getUyeBySurname(surname){
-    client.query(`Select * from onur.uye where uye_soyadi = ${surname}`, (err, result) => {
+    client.query(`Select * from onur.uye where uye_soyadi = ?`, [surname],(err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Uye bulunamadı");
@@ -672,7 +673,7 @@ function getUyeBySurname(surname){
 
 
 function getUyeByMail(mail){
-    client.query(`Select * from onur.uye where uye_email = ${mail}`, (err, result) => {
+    client.query(`Select * from onur.uye where uye_email = ?`, [mail], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Uye bulunamadı");
@@ -696,7 +697,7 @@ function getUyeByMail(mail){
 // uye bilgileri
 
 function getUyeKrediKartiNoByUyeId(id){
-    client.query(`Select * from onur.uye_bilgileri where uye_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.uye_bilgileri where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Kart bulunamadı");
@@ -714,7 +715,7 @@ function getUyeKrediKartiNoByUyeId(id){
 }
 
 function getUyeKrediKartiSktByUyeId(id){
-    client.query(`Select * from onur.uye_bilgileri where uye_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.uye_bilgileri where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Kart bulunamadı");
@@ -736,7 +737,7 @@ function getUyeKrediKartiGvcByUyeId(id){
         console.log("Kart bulunamadı");
         return null;
     }
-    client.query(`Select * from onur.uye_bilgileri where uye_id = ${id}`, (err, result) => {
+    client.query(`Select * from onur.uye_bilgileri where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
         const _list = result.map(row => {
             return{
@@ -749,8 +750,8 @@ function getUyeKrediKartiGvcByUyeId(id){
     });
 }
 
-function getUyeAdresByUyeId(id){
-    client.query(`Select * from onur.uye_bilgileri where uye_id = ${id}`, (err, result) => {
+function getUyeAdresByUyeId(id){ 
+    client.query("Select * from onur.uye where uye_id = ?", [id], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Adres bulunamadı");
@@ -765,5 +766,9 @@ function getUyeAdresByUyeId(id){
         console.log(_list);
         return _list;
     });
+    
 }
+
+
+getUyeAdresByUyeId(1);
 
