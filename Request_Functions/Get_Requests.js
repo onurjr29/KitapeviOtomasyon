@@ -1,5 +1,6 @@
 // const Connection = require('mysql/lib/Connection');
 const mysqlClient = require('../Client/mysqlClient');
+const bcrypt = require('bcrypt');
 
 const client = new mysqlClient();
 
@@ -770,5 +771,59 @@ function getUyeAdresByUyeId(id){
 }
 
 
-getUyeAdresByUyeId(1);
+function addNewUser(name, surname, mail, pass){
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPass = bcrypt.hashSync(pass, salt);
+
+    client.query("INSERT INTO onur.uye (uye_adi, uye_soyadi, uye_mail, uye_sifre) VALUES (?, ?, ?, ?)", [name,surname,mail,hashedPass], (err, result) => {
+        if(err) throw err;
+        console.log(result);
+    })  
+}
+
+function isUserExist(email, callback) {
+    // MySQL sorgusu
+    const sql = `SELECT * FROM onur.uye WHERE uye_mail = ?`;
+
+    // Sorguyu yürüt
+    client.query(sql, [email], (err, results) => {
+        if (err) {
+            // Hata durumunda geri arama ile hatayı bildir
+            callback(err, null);
+            return;
+        }
+
+        // Kullanıcı var mı yok mu kontrol et
+        const exist = results.length > 0; 
+        console.log(exist);
+        // Geri arama ile sonucu döndür
+        callback(null, exist);
+    });
+}
+
+function checkPassword(email, password, callback) {
+    const sql = `SELECT uye_sifre FROM onur.uye where uye_mail = ?`
+
+    client.query(sql, [email], (err, results) => {
+        if(err) throw err;
+        if(results.length == 0){
+            console.log("User not found!");
+            callback(null, false);
+        }
+        else{
+            const hashedPass = results[0].uye_sifre;
+            const isMatch = bcrypt.compareSync(password, hashedPass);
+            callback(null, isMatch);
+        }
+    })
+}
+
+module.exports = { getKategoriAllList, getKategoriById ,getKategoriByName, getKitaplarAllList,
+getKitaplarByBasim, getKitaplarByBaski, getKitaplarById, getKitaplarByName, getKitaplarBySayfa,
+getKitaplarByTur, getKitaplarByYazar, getKullaniciAllList, getKullaniciById, getPersonelAllList,
+getPersonelById, getPersonelByTc, getPersonelByPhone, getPersonelListByMail, getPersonelListByName,
+getPersonelListBySurname, getPersonelByUsername, getSiparisByAlimTarih, getSiparisByKitapId, getSiparisBySiparisId,
+getSiparisListByUyeId, getUyeAllList, getUyeById, getUyeByMail, getUyeByName, getUyeBySurname, getUyeKrediKartiGvcByUyeId,
+getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword
+}
 
