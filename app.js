@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const app = express()
 
 app.set('view engine', 'ejs')
+app.set ('views', __dirname + '/views')
 
 app.use(bodyParser.urlencoded({ extended: true })) // formdan gelen verileri okumak için
 
@@ -30,8 +31,28 @@ app.get('/registerFail', (req, res) => {
     res.render('registerFail')
 })
 
-app.get('/dashboard', middleWare.authenticationToken , (req, res) => {
-    res.render('dashboard')
+app.get('/dashboard', middleWare.authenticationToken, (req, res) => {
+    const locals = {
+        title : 'Dashboard',
+        description : 'Welcome to the dashboard!'
+    }
+    res.render('dashboard', locals)
+})
+
+app.get('/books', middleWare.authenticationToken, (req, res) => {
+    res.render('books')
+})
+
+app.get('/users', middleWare.authenticationToken, (req, res) => {
+    res.render('users')
+})
+
+app.get('/userOperations', middleWare.authenticationToken, (req, res) => {
+    res.render('userOperations')
+})
+
+app.get('/orderTracking', middleWare.authenticationToken, (req, res) => {
+    res.render('orderTracking')
 })
 
 app.post('/authorization', (req, res) => {
@@ -44,7 +65,7 @@ app.post('/authorization', (req, res) => {
                 if(err) throw err
                 if(result){
                     const token = jwt.sign({email}, 'rdj', {
-                        expiresIn : "15m"
+                        expiresIn : "3h"
                     })
                     res.cookie("token", token)
                     console.log("Login successful!");
