@@ -36,7 +36,16 @@ app.get('/dashboard', middleWare.authenticationToken, (req, res) => {
         title : 'Dashboard',
         description : 'Welcome to the dashboard!'
     }
-    res.render('dashboard', locals)
+    Get_Requests.getUyeAllList((err, result) => {
+        if (err) {
+            // Hata varsa, hatayı konsola yazdırın veya uygun bir şekilde işleyin
+            console.error("Veritabanı hatası: ", err);
+            res.status(500).send("Veritabanı hatası");
+        } else {
+            // Hata yoksa, dashboard şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
+            res.render('dashboard', { locals, result });
+        }
+    });
 })
 
 app.get('/books', middleWare.authenticationToken, (req, res) => {
