@@ -584,28 +584,30 @@ function getSiparisBySiparisId(id){
 
 //uye tablosu
 
-function getUyeAllList(){
-    client.query("Select * from onur.uye", (err, result) => {
-        if(err) throw err;
-        if(result.length == 0){
-            console.log("Liste bulunamadı");
-            return null;
-        }
-        const _list = result.map(row => {
-            return{
-                uye_id: row.uye_id,
-                uye_adi: row.uye_adi,
-                uye_soyadi: row.uye_soyadi,
-                uye_email: row.uye_email,
-                uye_sifre: row.uye_sifre,
-                uye_adres: row.uye_adres,
+function getUyeAllList(callback){
+    client.query("SELECT * FROM onur.uye", (err, result) => {
+        if(err) {
+            callback(err, null);
+        } else {
+            if(result.length == 0){
+                console.log("Liste bulunamadı");
+                callback(null, null);
+            } else {
+                const _list = result.map(row => {
+                    return {
+                        uye_id: row.uye_id,
+                        uye_adi: row.uye_adi,
+                        uye_soyadi: row.uye_soyadi,
+                        uye_mail: row.uye_mail,
+                        uye_sifre: row.uye_sifre,
+                        uye_adres: row.uye_adres,
+                    }
+                });
+                callback(null, _list);
             }
-        });
-        console.log(_list);
-        return _list;
+        }
     });
 }
-
 function getUyeById(id){
     client.query(`Select * from onur.uye where uye_id = ?`, [id], (err, result) => {
         if(err) throw err;
@@ -633,7 +635,7 @@ function getUyeByName(name){
         if(err) throw err;
         if(result.length == 0){
             console.log("Uye bulunamadı");
-            return null;
+            callback(null, null);
         }
         const _list = result.map(row => {
             return{
@@ -645,8 +647,7 @@ function getUyeByName(name){
                 uye_adres: row.uye_adres,
             }
         });
-        console.log(_list);
-        return _list;
+        callback(null, _list);
     });
 }
 
@@ -672,30 +673,32 @@ function getUyeBySurname(surname){
     });
 }   
 
-
-function getUyeByMail(mail){
-    client.query(`Select * from onur.uye where uye_email = ?`, [mail], (err, result) => {
-        if(err) throw err;
-        if(result.length == 0){
-            console.log("Uye bulunamadı");
-            return null;
+function getUyeByMail(mail, callback) {
+    client.query(`SELECT * FROM onur.uye WHERE uye_mail = ?`, [mail], (err, result) => {
+        if (err) {
+            console.error(err);
+            return callback(err, null);
         }
-        const _list = result.map(row => {
-            return{
-                uye_id: row.uye_id,
-                uye_adi: row.uye_adi,
-                uye_soyadi: row.uye_soyadi,
-                uye_email: row.uye_email,
-                uye_sifre: row.uye_sifre,
-                uye_adres: row.uye_adres,
-            }
-        });
-        console.log(_list);
-        return _list;
+        
+        if (result.length === 0) {
+            console.log("Üye bulunamadı");
+            return callback(null, null);
+        }
+        
+        const userData = {
+            uye_id: result[0].uye_id,
+            uye_adi: result[0].uye_adi,
+            uye_soyadi: result[0].uye_soyadi,
+            uye_email: result[0].uye_mail,
+            uye_sifre: result[0].uye_sifre,
+            uye_adres: result[0].uye_adres
+        };
+        
+        console.log(userData.uye_adi);
+        callback(null, userData);
     });
 }
 
-// uye bilgileri
 
 function getUyeKrediKartiNoByUyeId(id){
     client.query(`Select * from onur.uye_bilgileri where uye_id = ?`, [id], (err, result) => {

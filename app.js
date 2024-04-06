@@ -31,21 +31,30 @@ app.get('/registerFail', (req, res) => {
     res.render('registerFail')
 })
 
-app.get('/dashboard', middleWare.authenticationToken, (req, res) => {
+app.get('/dashboard', middleWare.authenticationToken,  (req, res)  => {
+    const query_email = req.email.email;
+    console.log(query_email);
     const locals = {
         title : 'Dashboard',
-        description : 'Welcome to the dashboard!'
+        description : 'Welcome to the dashboard!',
+        // activeUserName : req.uye_adi, // Assuming you have a middleware that sets the authenticated user in the request object
     }
-    Get_Requests.getUyeAllList((err, result) => {
-        if (err) {
-            // Hata varsa, hatayı konsola yazdırın veya uygun bir şekilde işleyin
-            console.error("Veritabanı hatası: ", err);
-            res.status(500).send("Veritabanı hatası");
-        } else {
-            // Hata yoksa, dashboard şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
-            res.render('dashboard', { locals, result });
-        }
+    Get_Requests.getUyeByMail(query_email, (err, uye) => {
+
+        Get_Requests.getUyeAllList((err, result) => {
+            if (err) {
+                // Hata varsa, hatayı konsola yazdırın veya uygun bir şekilde işleyin
+                console.error("Veritabanı hatası: ", err);
+                res.status(500).send("Veritabanı hatası");
+            } else {
+                // Hata yoksa, dashboard şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
+                res.render('dashboard', { activeUser: uye, result, locals}); 
+            }
+        });
+        
+        
     });
+ 
 })
 
 app.get('/books', middleWare.authenticationToken, (req, res) => {
