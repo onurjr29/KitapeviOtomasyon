@@ -60,12 +60,12 @@ function getKategoriByName(name) {
 }
 
 // Kitaplar Table
-function getKitaplarAllList(){
+function getKitaplarAllList(callback){
     client.query("Select * from onur.kitaplar", (err, result) => {
-        if(err) throw err;
+        if(err) callback(err, null);
         if(result.length == 0){
             console.log("Liste bulunamadı");
-            return null;
+            callback(null, null);
         }
         const _list = result.map(row => {
             return{
@@ -81,7 +81,7 @@ function getKitaplarAllList(){
             }
         });
         console.log(_list);
-        return _list;
+        callback(null, _list);
     });
 }
 

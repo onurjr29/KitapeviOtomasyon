@@ -31,16 +31,15 @@ app.get('/registerFail', (req, res) => {
     res.render('registerFail')
 })
 
-app.get('/dashboard', middleWare.authenticationToken,  (req, res)  => {
+app.get('/members', middleWare.authenticationToken,  (req, res)  => {
     const query_email = req.email.email;
-    console.log(query_email);
+    // console.log(query_email);
     const locals = {
-        title : 'Dashboard',
+        title : 'Members',
         description : 'Welcome to the dashboard!',
         // activeUserName : req.uye_adi, // Assuming you have a middleware that sets the authenticated user in the request object
     }
     Get_Requests.getUyeByMail(query_email, (err, uye) => {
-
         Get_Requests.getUyeAllList((err, result) => {
             if (err) {
                 // Hata varsa, hatayı konsola yazdırın veya uygun bir şekilde işleyin
@@ -48,7 +47,7 @@ app.get('/dashboard', middleWare.authenticationToken,  (req, res)  => {
                 res.status(500).send("Veritabanı hatası");
             } else {
                 // Hata yoksa, dashboard şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
-                res.render('dashboard', { activeUser: uye, result, locals}); 
+                res.render('members', { activeUser: uye, result, locals}); 
             }
         });
         
@@ -58,7 +57,22 @@ app.get('/dashboard', middleWare.authenticationToken,  (req, res)  => {
 })
 
 app.get('/books', middleWare.authenticationToken, (req, res) => {
-    res.render('books')
+    const query_email = req.email.email;
+    const locals = {
+        title : 'Books'
+    }
+    Get_Requests.getUyeByMail(query_email, (err, uye) => {
+        Get_Requests.getKitaplarAllList((err, result) => {
+            if (err) {
+                // Hata varsa, hatayı konsola yazdırın veya uygun bir şekilde işleyin
+                console.error("Veritabanı hatası: ", err);
+                res.status(500).send("Veritabanı hatası");
+            } else {
+                // Hata yoksa, books şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
+                res.render('books', { activeUser: uye, result, locals}); 
+            }
+        });
+    })
 })
 
 app.get('/users', middleWare.authenticationToken, (req, res) => {
@@ -87,7 +101,7 @@ app.post('/authorization', (req, res) => {
                     })
                     res.cookie("token", token)
                     console.log("Login successful!");
-                    res.status(200).redirect('dashboard')
+                    res.status(200).redirect('members')
                 }else{
                     console.log("Wrong password!");
                     res.render('loginFail', {errorMessage: 'Wrong password!'})
