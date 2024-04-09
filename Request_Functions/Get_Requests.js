@@ -4,12 +4,12 @@ const bcrypt = require('bcrypt');
 
 const client = new mysqlClient();
 
-function getKategoriAllList() {
+function getKategoriAllList(callback) {
     client.query("Select * from onur.kategori", (err, result) => {
-        if(err) throw err;
+        if(err) callback(err, null);
         if(result.length == 0){
             console.log("Liste bulunamadı");
-            return null;
+            callback(null, null)
         }
         const _list = result.map(row => {
             return{
@@ -18,7 +18,7 @@ function getKategoriAllList() {
             }
         })
         console.log(_list);
-        return _list;
+        callback(null, _list)
     });   
 }
 
@@ -80,7 +80,7 @@ function getKitaplarAllList(callback){
                 kitap_fiyat: row.kitap_fiyat
             }
         });
-        console.log(_list);
+        // console.log(_list);
         callback(null, _list);
     });
 }
@@ -821,12 +821,21 @@ function checkPassword(email, password, callback) {
     })
 }
 
+function deleteBook(id, callback){
+    const sql = `DELETE FROM onur.kitaplar WHERE kitap_id = ?;` 
+    client.query(sql, [id], (err, result) => {
+        if(err) throw err;
+        console.log("Kitap başarıyla silindi.");
+        callback(null, true);
+    })
+}
+
 module.exports = { getKategoriAllList, getKategoriById ,getKategoriByName, getKitaplarAllList,
 getKitaplarByBasim, getKitaplarByBaski, getKitaplarById, getKitaplarByName, getKitaplarBySayfa,
 getKitaplarByTur, getKitaplarByYazar, getKullaniciAllList, getKullaniciById, getPersonelAllList,
 getPersonelById, getPersonelByTc, getPersonelByPhone, getPersonelListByMail, getPersonelListByName,
 getPersonelListBySurname, getPersonelByUsername, getSiparisByAlimTarih, getSiparisByKitapId, getSiparisBySiparisId,
 getSiparisListByUyeId, getUyeAllList, getUyeById, getUyeByMail, getUyeByName, getUyeBySurname, getUyeKrediKartiGvcByUyeId,
-getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword
+getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword, deleteBook
 }
 

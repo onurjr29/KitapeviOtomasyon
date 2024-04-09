@@ -69,11 +69,46 @@ app.get('/books', middleWare.authenticationToken, (req, res) => {
                 res.status(500).send("Veritabanı hatası");
             } else {
                 // Hata yoksa, books şablonunu render edin ve sonucu iletilen veriyle birlikte gönderin
-                res.render('books', { activeUser: uye, result, locals}); 
+                res.render('books', { activeUser: uye, book: result, locals}); 
             }
         });
     })
 })
+
+app.post('/deleteBook/:id', middleWare.authenticationToken, (req, res) => {
+    const query_email = req.email.email;
+    const id = parseInt(req.params.id)
+
+    Get_Requests.getUyeByMail(query_email, (err, uye) => {
+        Get_Requests.deleteBook(id, (err, result) => {
+            if(err){
+                console.log("Veritabani hatasi");
+                res.status(500).send("Veritabani hatasi")
+            }else{
+                console.log("Kitap silindi");
+                Get_Requests.getKitaplarAllList((err, kitaplar) => {
+                    res.redirect('/books', 201, {activeUser: uye, book: kitaplar})
+                })
+            }
+        })
+    })
+})
+
+app.get('/list', (req, res) => {
+    const selectedOption = req.query.selectedOption;
+    console.log("selectedOption");
+    // selectedOption'a göre işlem yapılabilir
+    // Örnek olarak:
+    if (selectedOption === 'value1') {
+        // Eğer selectedOption 'value1' ise, örnek bir dizi döndür
+        const data = ['Option 1', 'Option 2', 'Option 3'];
+        res.json(data);
+    } else {
+        // Diğer durumlar için hata mesajı döndür
+        res.status(400).send('Geçersiz seçenek');
+    }
+});
+
 
 app.get('/users', middleWare.authenticationToken, (req, res) => {
     res.render('users')
