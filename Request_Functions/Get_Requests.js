@@ -17,10 +17,11 @@ function getKategoriAllList(callback) {
                 kategori_adi: row.kategori_adi
             }
         })
-        console.log(_list);
+        // console.log(_list);
         callback(null, _list)
     });   
 }
+
 
 function getKategoriById(id) {
     client.query(`Select * from onur.kategori where kategori_id = ?`, [id], (err, result) => {
@@ -162,6 +163,34 @@ function getKitaplarByYazar(yazar){
 
 function getKitaplarByTur(tur){
     client.query(`Select * from onur.kitaplar where kitap_tur = ?`, [tur], (err, result) => {
+        if(err) throw err;
+        if(result.length == 0){
+            console.log("Liste bulunamadı");
+            return null;
+        }
+        const _list = result.map(row => {
+            return{
+                kitap_id: row.kitap_id,
+                kitap_adi: row.kitap_adi,
+                kitap_yazar: row.kitap_yazar,
+                kitap_tur: row.kitap_tur,
+                kitap_sayfa: row.kitap_sayfa,
+                kitap_basim: row.kitap_basim,
+                kitap_baski: row.kitap_baski,
+                kitap_adet: row.kitap_adet,
+                kitap_fiyat: row.kitap_fiyat
+            }
+        });
+        console.log(_list);
+        return _list;
+    });
+}
+
+function getKitaplarBySelectedQuery(selectedQuery){
+    var query = `Select * from onur.kitaplar where kitap_tur = ? or kitap_sayfa = ? or kitap_basim = ? or kitap_baski = ?`
+
+    if(selectedQuery === 'default')
+    client.query(query, [selectedQuery], (err, result) => {
         if(err) throw err;
         if(result.length == 0){
             console.log("Liste bulunamadı");
@@ -830,12 +859,14 @@ function deleteBook(id, callback){
     })
 }
 
+getKitaplarBySelectedQuery('düşünce')
+
 module.exports = { getKategoriAllList, getKategoriById ,getKategoriByName, getKitaplarAllList,
 getKitaplarByBasim, getKitaplarByBaski, getKitaplarById, getKitaplarByName, getKitaplarBySayfa,
 getKitaplarByTur, getKitaplarByYazar, getKullaniciAllList, getKullaniciById, getPersonelAllList,
 getPersonelById, getPersonelByTc, getPersonelByPhone, getPersonelListByMail, getPersonelListByName,
 getPersonelListBySurname, getPersonelByUsername, getSiparisByAlimTarih, getSiparisByKitapId, getSiparisBySiparisId,
 getSiparisListByUyeId, getUyeAllList, getUyeById, getUyeByMail, getUyeByName, getUyeBySurname, getUyeKrediKartiGvcByUyeId,
-getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword, deleteBook
+getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword, deleteBook,getKitaplarBySelectedQuery
 }
 

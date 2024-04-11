@@ -31,6 +31,7 @@ app.get('/registerFail', (req, res) => {
     res.render('registerFail')
 })
 
+
 app.get('/members', middleWare.authenticationToken,  (req, res)  => {
     const query_email = req.email.email;
     // console.log(query_email);
@@ -75,6 +76,29 @@ app.get('/books', middleWare.authenticationToken, (req, res) => {
     })
 })
 
+app.get('/getBooks', (req, res) => {
+    const selectedQuery = req.body.selectedQuery
+    if(selectedQuery.toLowerCase() === 'default'){
+        const data = Get_Requests.getKategoriAllList((err, result) => {
+            if(err) res.status(500).send('Interval server error')
+            else
+                res.json(result)
+        })
+    }
+    else{
+        const data = Get_Requests.getKitaplarBySelectedQuery(selectedQuery, (err, result) => {
+            if(err) res.status(500).send('Interval server error')
+            else
+                res.json(result)
+        })
+    }
+    
+     
+
+
+
+})
+
 app.post('/deleteBook/:id', middleWare.authenticationToken, (req, res) => {
     const query_email = req.email.email;
     const id = parseInt(req.params.id)
@@ -96,18 +120,26 @@ app.post('/deleteBook/:id', middleWare.authenticationToken, (req, res) => {
 
 app.get('/list', (req, res) => {
     const selectedOption = req.query.selectedOption;
-    console.log("selectedOption");
+    console.log(selectedOption); // 'selectedOption' yerine değişkenin değerini loglamak için değiştirildi
     // selectedOption'a göre işlem yapılabilir
     // Örnek olarak:
     if (selectedOption === 'value1') {
         // Eğer selectedOption 'value1' ise, örnek bir dizi döndür
-        const data = ['Option 1', 'Option 2', 'Option 3'];
-        res.json(data);
-    } else {
+        const data = Get_Requests.getKategoriAllList((err, result) => {
+            if (err) {
+                res.status(500).send('Interval server error')
+            }
+            else{
+                res.json(result)
+            }
+        })
+    } 
+    else {
         // Diğer durumlar için hata mesajı döndür
         res.status(400).send('Geçersiz seçenek');
     }
 });
+
 
 
 app.get('/users', middleWare.authenticationToken, (req, res) => {

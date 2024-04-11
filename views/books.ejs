@@ -115,34 +115,79 @@
           <select class="form-select me-2" aria-label="Default select example" id="list" disabled style="width: 300px;">
             <option selected>Open this select list</option>
             
-          </select> 
-          <script>
+          </select>
+
+
+           <!-- Arama Menusu JavaScript Kodlari  -->
+          <script >
             const list = document.getElementById('list');
-            document.getElementById('menu').addEventListener("change", (event) => {
-                const selectedOption = event.target.value;
-                console.log("zibab")
-                fetchCategory(selectedOption);
-                list.disabled = false;
-            });
-            
-            function fetchCategory(selectedOption) {
-                console.log(selectedOption)
-                fetch(`/list?selectedOption=${selectedOption}`,{
-                  method: 'POST'
+            const tr = document.getElementById('tr');
+            var selectedQuery = {menu: 'null', query: null}
+
+            document.getElementById('menu').addEventListener('change', (event) => {
+                selectedQuery.menu = event.target.value
+                console.log("zibab");
+
+                fetchCategory(`value${selectedQuery.menu}`);
+                list.addEventListener('change', (event) => {
+                  const selectedQuery = EventTarget.value;
+                  fetchBook(selectedQuery)
                 })
-                .then(response => response.json())
+
+            });
+
+            function fetchCategory(selectedOption) {
+                console.log(selectedOption);
+                fetch(`http://localhost:5000/list?selectedOption=${selectedOption}`)
+                .then(response => {
+                  if(!response.ok){
+                    throw new Error('Network response was not ok')
+                  }
+                  return response.json()
+                })
                 .then(data => {
-                    console.log(data)
-                    data.forEach((item, index) => { // index ve item yer değiştirdi
+                    data.forEach((item, index) => {
                         var option = document.createElement('option');
                         option.value = `value${index + 1}`;
-                        option.text = item;
-                        list.appendChild(option); // list.appendChild(option) düzeltildi
+                        option.text = item.kategori_adi;
+                        list.appendChild(option);
                     });
-                });
+                    list.disabled = false; //Liste öğesini etkinleştir
+                })
+                .catch(error => console.error('Error fetching data:', error));
             }
-            
-          </script>     
+
+            function fetchBook(selectedQuery){
+              console.log(selectedQuery);
+              fetch(`http://localhost:5000/getBooks?selectedQuery=${selectedQuery}`)
+              .then(response => {
+                if(!response.ok){
+                  throw new Error('Network response was not ok')
+                }
+                return response.json()
+              })
+              .then(data => {
+                data.forEach((item, index) => {
+                  var th = document.createElement('th')               
+                  th.scope = 'row';
+                  th = `${index + 1}`
+                  tr.appendChild(th)
+                  item.forEach((item, index) => {
+                    var td = document.createElement('td')
+                    td = item
+                    tr.appendChild(td);
+                  })
+                })
+              })
+              .catch(error => console.error('Error fetching data', error))
+            }
+          </script>
+          
+          <script>
+
+          </script>
+
+          
           <button type="button" class="btn btn-primary" >Sırala</button>
         </div>
         <div class="col-4 d-flex" style="gap: 10px;"> 
@@ -169,7 +214,7 @@
       <tbody>
         <% if (book && book.length > 0) { %>
           <% book.forEach((item, index) => { %>
-            <tr>
+            <tr id="tr">
               <th scope="row"><%= index + 1 %></th>
               <td><%= item.kitap_adi %></td>
               <td><%= item.kitap_yazar %></td>
@@ -195,12 +240,15 @@
         <% } %>
       </tbody>      
     </table>
-    <!-- <script>
-      const deleteButton = document.getElementById('deleteButton')
-      deleteButton.addEventListener('click', () => {
-        
-      })
-    </script> -->
+
+    <!-- Tablo Elemanlarini Listeleme -->
+    <script>
+      function fetchBook(selectedBooks){
+        const books = fetch("")
+      }
+
+    </script>
+
     <div class="row">
       <div class="col-12">
         <button type="button" id="ekle" class="btn btn-primary">Kitap Ekle</button>
