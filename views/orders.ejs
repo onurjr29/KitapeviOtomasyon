@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Document</title>
+    </head>
+<body class="bg-dark">
+
+<style>
+  .full-screen {
+      position: fixed; /* Sabit pozisyon */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999; /* İhtiyaca bağlı olarak */
+      /* Arkaplan rengi ve şeffaflık */
+
+  }
+
+  .bg-dark {
+    background-color: #343a40 !important;
+  }
+
+  .bg-dark-2{
+    background-color: black !important;
+  }
+
+  .line{
+    border-color: rgb(86, 86, 86) !important;
+  }
+
+  .content {
+       /* İstediğiniz genişlik */
+      height: 100%; /* İçeriğin boyutuna göre yükseklik ayarı */
+      padding: 20px; /* İçerik iç boşluğu */
+      overflow-y: auto;
+  }
+  
+  body{
+    overflow-x: hidden;
+  }
+</style>
+
+<div class="row" >
+  <div class="col-2 p-0">
+    <div class="content p-4 d-flex flex-column flex-shrink-0 p-0 text-bg-dark col-2 border line" id="sideBar" style="width: 100%; height: 100vh;" >
+      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <svg class="bi pe-none " width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+        <span class="fs-4">Sago Kitapevi</span>
+      </a>
+      <hr>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="/members" class="nav-link text-white  " aria-current="page">
+            <svg class="bi pe-none me-2 " width="16" height="16"><use xlink:href="#home"></use></svg>
+            Üyeler
+          </a>
+        </li>
+        <li>
+          <a href="/books" class="nav-link text-white  ">
+            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>
+            Kitaplar
+          </a>
+        </li>
+        <li>
+          <a href="/orders" class="nav-link text-white active">
+            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"></use></svg>
+            Siparişler
+          </a>
+        </li>
+      </ul>
+      <hr>
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <strong>
+            <%= activeUser.uye_adi %> 
+          </strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="/profile">Profile</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" onclick="logOut()" href="#">Sign out</a></li>
+        </ul>
+      </div>
+    </div>
+</div>
+  <div class="col-10 p-0 ps-2 pt-2 pe-4">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-between ">
+          <div>
+            <h1 class="text-white ">Orders</h1>
+          </div>
+          <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-warning" id="createOrder">Sipariş Ver</button>
+          </div>
+        </div>
+        
+    </div>
+    <hr class="border border-line">
+    <div>
+      <div class="container mt-4" id="giveOrder" style="display: none;">
+        <form action="addOrder" method="post">
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label text-white">Ürün ID</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Ürün ID" name="urun">
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label text-white">Müşteri ID</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Müşteri ID" name="musteri">
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label text-white">Miktar</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Miktar" name="miktar">
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label text-white">Adres</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Adres" name="adres">
+              </div>
+              <button type="submit" class="btn btn-primary">Sipariş Ver</button>
+            </div>
+          </div>
+        </form>
+      </div>
+        
+    </div>
+    
+    <div class="list-group mt-4" id="monitorOrders" style="display: block;">
+        <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+            Active Orders </a>
+        <div id="orders">
+
+        </div>
+    </div>
+  </div>
+    <script>
+      function logOut(){
+        fetch('/logout')
+        .then(response => {
+          if(response.redirected){
+            window.location.href = response.url;
+          }
+        });
+      }
+    </script>
+    <script>     
+        const orders = document.getElementById('orders')
+        const monitorOrders = document.getElementById('monitorOrders')
+        const giveOrder = document.getElementById('giveOrder')
+        const createOrder = document.getElementById('createOrder')
+
+        createOrder.addEventListener('click', () => {
+          if(giveOrder.style.display === 'none'){
+            giveOrder.style.display = 'block'
+            monitorOrders.style.display = 'none'
+          }else{
+            giveOrder.style.display = 'none'
+            monitorOrders.style.display = 'block'
+          }
+        })
+
+        fetchOrders()
+
+        function fetchOrders(){
+            fetch('http://localhost:5000/fetchOrders')
+            .then(response => {
+                if(!response.ok){
+                    throw new Error ('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                orders.innerHTML = '';
+                console.log(data)
+                data.forEach((order, index) => {
+                    var div = document.createElement('div')
+                    div.innerHTML = `
+                    <a href="#" class="list-group-item list-group-item-action" id="order${index+1}" style="transition: max-height 0.5s ease; position: relative;" onclick="toggleOrderDetails(order${index+1})">
+                        <div class="disable">
+                            <button type="button" class="btn btn-danger mx-2 my-2" style="position: absolute; top: 0; right: 0;" onclick="deleteOrder(${order.siparis_id})">Sil</button>
+                            <ul class="order-list" style="list-style-type: none;">
+                                <span class="order-id" style="float: left; margin-top: 5px; margin-left: -25px;">Sipariş ID: ${order.siparis_id}</span>
+                                <div class="order-details hidden" style="height: auto;">
+                                    <div class="in" style="height: auto; width: 200px; margin-left: 180px; margin-top: 15px;">
+                                        <p>Ürün ID: ${order.kitap_id} ()</p>
+                                        <p>Müşteri ID: ${order.uye_id}</p>
+                                        <p>Miktar: ${order.siparis_adet}</p>
+                                        <p>Sipariş Tarihi: 2024-04-06</p>
+                                        <p>Teslimat Adresi: ${order.siparis_adres}</p>
+                                    </div>
+                                </div>
+                            </ul>
+                        </div>
+                    </a>
+                    `
+                    orders.appendChild(div)
+                })
+            })
+        }
+
+        function deleteOrder(orderId){
+          fetch(`http://localhost:5000/deleteOrder?orderId=${orderId}`, {
+            method: 'POST'
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok', response);
+            }else{
+              fetchOrders()
+            }
+          })
+        }
+
+        function toggleOrderDetails(orderId) {
+            var orderDetails = document.getElementById(orderId).querySelector('.order-details');
+            if (orderDetails.classList.contains('hidden')) {
+                orderDetails.classList.remove('hidden');
+            } else {
+                orderDetails.classList.add('hidden');
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

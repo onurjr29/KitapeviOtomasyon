@@ -50,38 +50,26 @@
     <div class="content p-4 d-flex flex-column flex-shrink-0 p-0 text-bg-dark col-2 border line" id="sideBar" style="width: 100%; height: 100vh;" >
       <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
         <svg class="bi pe-none " width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-        <span class="fs-4">Sidebar</span>
+        <span class="fs-4">Sago Kitapevi</span>
       </a>
       <hr>
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
           <a href="/members" class="nav-link text-white " aria-current="page">
             <svg class="bi pe-none me-2 " width="16" height="16"><use xlink:href="#home"></use></svg>
-            Members
+            Üyeler
           </a>
         </li>
         <li>
           <a href="/books" class="nav-link text-white active ">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>
-            Books
+            Kitaplar
           </a>
         </li>
         <li>
-          <a href="" class="nav-link text-white">
+          <a href="/orders" class="nav-link text-white">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"></use></svg>
-            Orders
-          </a>
-        </li>
-        <li>
-          <a href="#" class="nav-link text-white">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#grid"></use></svg>
-            Products
-          </a>
-        </li>
-        <li>
-          <a href="#" class="nav-link text-white">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#people-circle"></use></svg>
-            Customers
+            Siparişler
           </a>
         </li>
       </ul>
@@ -93,11 +81,9 @@
           </strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="#">New project...</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="/profile">Profile</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#">Sign out</a></li>
+          <li><a class="dropdown-item" onclick="logOut()">Sign out</a></li>
         </ul>
       </div>
     </div>
@@ -110,7 +96,7 @@
         <div class="col-6 d-flex">
           <select class="form-select me-2" aria-label="Default select example" id="menu" style="width: 300px;">
             <option selected>Open this select menu</option>
-            <option value="1">Kategori</option>
+            <option value="kategori">Kategori</option>
           </select>
           <select class="form-select me-2" aria-label="Default select example" id="list" disabled style="width: 300px;">
             <option selected>Open this select list</option>
@@ -119,84 +105,19 @@
 
 
            <!-- Arama Menusu JavaScript Kodlari  -->
-          <script >
-            const list = document.getElementById('list');
-            const tr = document.getElementById('tr');
-            var selectedQuery = {menu: 'null', query: null}
-
-            document.getElementById('menu').addEventListener('change', (event) => {
-                selectedQuery.menu = event.target.value
-                console.log("zibab");
-
-                fetchCategory(`value${selectedQuery.menu}`);
-                list.addEventListener('change', (event) => {
-                  const selectedQuery = EventTarget.value;
-                  fetchBook(selectedQuery)
-                })
-
-            });
-
-            function fetchCategory(selectedOption) {
-                console.log(selectedOption);
-                fetch(`http://localhost:5000/list?selectedOption=${selectedOption}`)
-                .then(response => {
-                  if(!response.ok){
-                    throw new Error('Network response was not ok')
-                  }
-                  return response.json()
-                })
-                .then(data => {
-                    data.forEach((item, index) => {
-                        var option = document.createElement('option');
-                        option.value = `value${index + 1}`;
-                        option.text = item.kategori_adi;
-                        list.appendChild(option);
-                    });
-                    list.disabled = false; //Liste öğesini etkinleştir
-                })
-                .catch(error => console.error('Error fetching data:', error));
-            }
-
-            function fetchBook(selectedQuery){
-              console.log(selectedQuery);
-              fetch(`http://localhost:5000/getBooks?selectedQuery=${selectedQuery}`)
-              .then(response => {
-                if(!response.ok){
-                  throw new Error('Network response was not ok')
-                }
-                return response.json()
-              })
-              .then(data => {
-                data.forEach((item, index) => {
-                  var th = document.createElement('th')               
-                  th.scope = 'row';
-                  th = `${index + 1}`
-                  tr.appendChild(th)
-                  item.forEach((item, index) => {
-                    var td = document.createElement('td')
-                    td = item
-                    tr.appendChild(td);
-                  })
-                })
-              })
-              .catch(error => console.error('Error fetching data', error))
-            }
-          </script>
+         
           
-          <script>
-
-          </script>
-
+         
           
           <button type="button" class="btn btn-primary" >Sırala</button>
         </div>
         <div class="col-4 d-flex" style="gap: 10px;"> 
-          <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 400px;">
-          <button type="button" class="btn btn-primary">Ara</button>
+          <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 400px;" onchange="searchBooks(this.value)">
+          <button type="button" class="btn btn-primary" >Ara</button>
         </div>          
     </div>
   <hr class="border border-line">
-    <table class="table table-dark table-striped ">
+    <table class="table table-dark table-striped" id="book-table">
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -211,48 +132,17 @@
           <th scope="col"></th>
         </tr>
       </thead>
-      <tbody>
-        <% if (book && book.length > 0) { %>
-          <% book.forEach((item, index) => { %>
-            <tr id="tr">
-              <th scope="row"><%= index + 1 %></th>
-              <td><%= item.kitap_adi %></td>
-              <td><%= item.kitap_yazar %></td>
-              <td><%= item.kitap_tur %></td>
-              <td><%= item.kitap_sayfa %></td>
-              <td><%= item.kitap_basim %></td>
-              <td><%= item.kitap_baski %></td>
-              <td><%= item.kitap_adet %></td>
-              <td><%= item.kitap_fiyat %></td>
-              <td>
-                <form action="deleteBook/<%=item.kitap_id%>" method="post">
-                  <button type="submit" id="deleteButton" class="btn btn-outline-danger" style="height: auto">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" style="fill: white;" width="24"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
-                  </button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        <% } else { %>
-          <tr>
-            <td colspan="4">Kitap bulunamadı.</td>
-          </tr>
-        <% } %>
+      <tbody id="book-table-body">
+
       </tbody>      
     </table>
 
     <!-- Tablo Elemanlarini Listeleme -->
-    <script>
-      function fetchBook(selectedBooks){
-        const books = fetch("")
-      }
-
-    </script>
+    
 
     <div class="row">
       <div class="col-12">
         <button type="button" id="ekle" class="btn btn-primary">Kitap Ekle</button>
-        <button type="button" class="btn btn-warning">Kitap Duzenle</button>
         <hr class="border border-line">
       </div>
       <script>
@@ -265,60 +155,208 @@
           }
         })
       </script>
-      <div class="col-12 text-white my-4" id="ekleForm" style="display: none;" >
-        <div class="d-flex justify-content-around">
-          <div class="">
-            <h3>Kitap Adı</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
-          </div>  
-          <div class="">
-            <h3>Yazar</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
+      <form action="addBook" method="post">
+        <div class="col-12 text-white my-4" id="ekleForm" style="display: none;" >
+          <div class="d-flex justify-content-around">
+            <div class="">
+              <h3>Kitap Adı</h3>
+              <input class="form-control" name="kitapAdi" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>  
+            <div class="">
+              <h3>Yazar</h3>
+              <input class="form-control" name="yazar" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>
+            <div class="">
+              <h3>Tür</h3>
+              <input class="form-control" name="tur" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>
+            
+            
+            <!-- <div class="row" id="duzenle">baci</div> -->
           </div>
-          <div class="">
-            <h3>Tür</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
+          <div class="mt-4 d-flex justify-content-around">
+            <div class="">
+              <h3>Sayfa</h3>
+              <input class="form-control" name="sayfa" id="exampleDataList" placeholder="Type to search..."  type="text" style="width: 350px; "> 
+            </div>  
+            <div class="">
+              <h3>Basım</h3>
+              <input class="form-control" name="basim" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>
+            <div class="">
+              <h3>Baskı</h3>
+              <input class="form-control" name="baski" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>
+            <!-- <div class="row" id="duzenle">baci</div> -->
           </div>
           
-          <!-- <div class="row" id="duzenle">baci</div> -->
-        </div>
-        <div class="mt-4 d-flex justify-content-around">
-          <div class="">
-            <h3>Sayfa</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
-          </div>  
-          <div class="">
-            <h3>Basım</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
+          <div class="mt-4 d-flex justify-content-around ">
+            <div class="">
+              <h3>Adet</h3>
+              <input class="form-control" name="adet" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px;"> 
+            </div>
+            <div class="mx-4 ">
+              <h3>Fiyat</h3>
+              <div class="d-flex">
+                <input class="form-control me-2" name="fiyat" id="exampleDataList" placeholder="Type to search..." type="text" style="width: 350px; height: fit-content;"> 
+                <button type="submit" class="btn btn-primary " style="width: 100px;">Ekle</button>
+              </div>
+            </div>
+ 
+          </form> 
+            
+            <div style="width: 350px;">
+            </div>
+            <div style="width: 350px;"></div>
+            <!-- <div class="row" id="duzenle">baci</div> -->
           </div>
-          <div class="">
-            <h3>Baskı</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
-          </div>
-          <!-- <div class="row" id="duzenle">baci</div> -->
-        </div>
-        <div class="mt-4 d-flex justify-content-around">
-          <div class="">
-            <h3>Fiyat</h3>
-            <input class="form-control"  id="exampleDataList" placeholder="Type to search..." style="width: 350px;"> 
-            <button type="button" class="btn btn-primary mt-4" style="width: 100px;">Ekle</button>
-          </div>  
-          <div style="width: 350px;">
-          </div>
-          <div style="width: 350px;"></div>
-          <!-- <div class="row" id="duzenle">baci</div> -->
-        </div>
         
       <!-- <div class="col-12 text-white">yo</div> -->
     </div>
   </div>
 </div>
   
+
+<script>
+  function logOut(){
+    fetch('/logout')
+    .then(response => {
+      if(response.redirected){
+        window.location.href = response.url;
+      }
+    });
+  
+  }
+</script>
+<script>
+  
+  const list = document.getElementById('list');
+  const tbody = document.getElementById('book-table-body');
+  var selectedQuery = {menu: null, query: null}
+  
+  fetchBook(selectedQuery)
+  document.getElementById('menu').addEventListener('change', (event) => {
+    selectedQuery.menu = event.target.value;
+    console.log(selectedQuery.menu);
+    
+    fetchCategory(selectedQuery.menu);
+    
+    list.addEventListener('change', (event) => {
+      selectedQuery.query = event.target.value;
+      console.log(selectedQuery.query);
+      fetchBook(selectedQuery)
+    })
+  });
+  
+  function fetchCategory(selectedOption) {
+    fetch(`http://localhost:5000/list?selectedOption=${selectedOption}`)
+    .then(response => {
+      if(!response.ok){
+        throw new Error('Network response was not ok')
+      }
+      return response.json()
+    })
+    .then(data => {
+      data.forEach((item, index) => {
+        var option = document.createElement('option');
+        option.value = item.kategori_adi;
+        option.text = item.kategori_adi;
+        list.appendChild(option);
+      });
+      list.disabled = false; //Liste öğesini etkinleştir
+    })
+    .catch(error => console.error('Error fetching data:', error));
+  } 
   
   
   
-  
-  
+  function fetchBook(selectedQuery) {
+    fetch(`http://localhost:5000/getBooks?menu=${selectedQuery.menu}&query=${selectedQuery.query}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Bu `then` bloğu, `response.json()` işlemi başarılı olduğunda çalışır
+      tbody.innerHTML = ``
+      console.log(data); // Elde edilen JSON verisini konsola yazdırabilirsiniz
+      // Burada `data` verisini işleyebilirsiniz
+      data.forEach((item, index) => {
+        var row = document.createElement('tr');
+        
+        row.innerHTML = `
+        <td scope="row">${index + 1}</td>
+        <td>${item.kitap_adi}</td>
+        <td>${item.kitap_yazar}</td>
+        <td>${item.kitap_tur}</td>
+        <td>${item.kitap_sayfa}</td>
+        <td>${item.kitap_basim}</td>
+        <td>${item.kitap_baski}</td>
+        <td>${item.kitap_adet}</td> 
+        <td>${item.kitap_fiyat}</td>
+        <td><button type="button" id="${item.kitap_id}" onclick="deleteBook(${item.kitap_id})" class="btn btn-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" style="fill: white;" viewBox="0 -960 960 960" width="24"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+        </button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch(error => { 
+      var row = document.createElement('tr');
+      row.innerHTML = `<td colspan="5">Kitap bulunamadı.</td>`;
+      tbody.appendChild(row);
+      console.error('Error fetching data', error)});
+    }
+
+    function deleteBook(kitapId){
+      fetch(`http://localhost:5000/deleteBook?kitapId=${kitapId}`, {
+        method: 'POST'
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok', response);
+        }else{
+          fetchBook(selectedQuery)
+        }
+      })
+    }
+      
+    function searchBooks(searchQuery){
+      fetch(`http://localhost:5000/searchBook?searchQuery=${searchQuery}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        tbody.innerHTML = ``
+        console.log(data); // Elde edilen JSON verisini konsola yazdırabilirsiniz
+        // Burada `data` verisini işleyebilirsiniz
+        data.forEach((item, index) => {
+          var row = document.createElement('tr');
+          
+          row.innerHTML = `
+          <td scope="row">${index + 1}</td>
+          <td>${item.kitap_adi}</td>
+          <td>${item.kitap_yazar}</td>
+          <td>${item.kitap_tur}</td>
+          <td>${item.kitap_sayfa}</td>
+          <td>${item.kitap_basim}</td>
+          <td>${item.kitap_baski}</td>
+          <td>${item.kitap_adet}</td> 
+          <td>${item.kitap_fiyat}</td>
+          <td><button type="button" id="${item.kitap_id}" onclick="deleteBook(${item.kitap_id})" class="btn btn-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" style="fill: white;" viewBox="0 -960 960 960" width="24"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+          </button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

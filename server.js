@@ -1,23 +1,13 @@
-const express = require("express")
+const Get_Requests = require('./Request_Functions/Get_Requests')
 
-const app = express()
 
-app.get('/fetch', (req, res) => {
-    console.log("i recieved fetch request");
-
-    var tryFetch = {myString : "i am working fetch"}
-    res.json(tryFetch)
+// const query = {menu: 'kategori', query: 'düşünce'}
+Get_Requests.getKitaplarByTur('Düşünce',(err, result) => {
+    if (err) {
+        console.log('Interval server error')
+    }
+    else{
+        console.log(result)
+    }
 })
-
-
-const fromServer = fetch('http://localhost:5000/fetch')
-    .then(response => response.json())
-    .then(data => console.log(data.myString))
-    .catch(error => console.error('Error fetching data:', error));
-
-
-console.log(fromServer);
-
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
-})
+// fetchBook(query)

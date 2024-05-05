@@ -161,14 +161,14 @@ function getKitaplarByYazar(yazar){
     });
 }
 
-function getKitaplarByTur(tur){
+function getKitaplarByTur(tur, callback){
     client.query(`Select * from onur.kitaplar where kitap_tur = ?`, [tur], (err, result) => {
-        if(err) throw err;
+        if(err) callback(err, null);    
         if(result.length == 0){
             console.log("Liste bulunamadı");
-            return null;
+            callback(null, null);
         }
-        const _list = result.map(row => {
+        var _list = result.map(row => {
             return{
                 kitap_id: row.kitap_id,
                 kitap_adi: row.kitap_adi,
@@ -181,12 +181,12 @@ function getKitaplarByTur(tur){
                 kitap_fiyat: row.kitap_fiyat
             }
         });
-        console.log(_list);
-        return _list;
+        // console.log(_list);
+        callback(null, _list);
     });
 }
 
-function getKitaplarBySelectedQuery(selectedQuery){
+function getKitaplarBySelectedQuery(selectedQuery, callback){
     var query = `Select * from onur.kitaplar where kitap_tur = ? or kitap_sayfa = ? or kitap_basim = ? or kitap_baski = ?`
 
     if(selectedQuery === 'default')
@@ -213,6 +213,54 @@ function getKitaplarBySelectedQuery(selectedQuery){
         return _list;
     });
 }
+
+function getKitaplarBySearchQuery(searchQuery, callback){
+    const query = `SELECT * FROM kitaplar WHERE kitap_adi LIKE ?`;
+    client.query(query, [`${searchQuery}%`], (err, result) => {
+        if(err) callback(err, null);
+        if(result.length == 0){
+            console.log("Liste bulunamadı");
+            callback(null, null);
+        }
+        const _list = result.map(row => {
+            return{
+                kitap_id: row.kitap_id,
+                kitap_adi: row.kitap_adi,
+                kitap_yazar: row.kitap_yazar,
+                kitap_tur: row.kitap_tur,
+                kitap_sayfa: row.kitap_sayfa,
+                kitap_basim: row.kitap_basim,
+                kitap_baski: row.kitap_baski,
+                kitap_adet: row.kitap_adet,
+                kitap_fiyat: row.kitap_fiyat
+            }
+        });
+        console.log(_list);
+        callback(null, _list);
+    });
+}
+
+function getUyelerBySearchQuery(searchQuery, callback){
+    const query = `SELECT * FROM uye WHERE uye_adi LIKE ?`;
+    client.query(query, [`${searchQuery}%`], (err, result) => {
+        if(err) callback(err, null);
+        if(result.length == 0){
+            console.log("Liste bulunamadı");
+            callback(null, null);
+        }
+        const _list = result.map(row => {
+            return{
+                uye_id: row.uye_id,
+                uye_adi: row.uye_adi,
+                uye_soyadi: row.uye_soyadi,
+                uye_mail: row.uye_mail
+            }
+        });
+        console.log(_list);
+        callback(null, _list);
+    });
+}
+
 
 function getKitaplarBySayfa(sayfa){
     client.query(`Select * from onur.kitaplar where kitap_sayfa = ?`, sayfa, (err, result) => {
@@ -310,7 +358,52 @@ function getKullaniciAllList(){
         console.log(_list);
         return _list;
     });
+}
 
+function getBookByOrderId(id, callback){
+    const sql = `SELECT kitaplar.kitap_adi
+    FROM siparis
+    JOIN kitaplar ON siparis.kitap_id = kitaplar.kitap_id
+    WHERE siparis.siparis_id = ?`;
+    client.query(sql, [id], (err, result) => {
+        if(err) callback(err, null);
+        if(result.length == 0){
+            console.log("Liste bulunamadı");
+            callback(null, null);
+        }
+        const _list = result.map(row => {
+            return{
+                kitap_adi: row.kitap_adi
+            }
+        });
+        console.log(_list);
+        callback(null, _list);
+    });
+}
+
+function getSiparisAllList(callback){
+    const sql = `SELECT * FROM onur.siparis`
+    client.query(sql, (err, result) => {
+        if(err) callback(err, null)
+        if(result.length == 0){
+            console.log("Liste bulunamadi");
+            callback(null, null)
+        }
+        const _list = result.map(row => {
+            return{
+                uye_id: row.uye_id,
+                kitap_id: row.kitap_id,
+                // kitap_adi: getBookByOrderId(row.kitap_id),
+                siparis_id: row.siparis_id,
+                siparis_tarih: row.siparis_tarih,
+                siparis_adet: row.siparis_adet,
+                siparis_tutar: row.siparis_tutar,
+                siparis_adres: row.siparis_adres
+            }
+        })
+        console.log(_list);
+        callback(null, _list)
+    })
 }
 
 function getKullaniciById(id){
@@ -802,15 +895,41 @@ function getUyeAdresByUyeId(id){
     
 }
 
+function getUyeBySearchQuery(searchQuery, callback){
+    var query = `Select * FROM onur.uye WHERE uye_adi LIKE ? OR uye_soyadi LIKE ? OR uye_mail LIKE ?`
 
-function addNewUser(name, surname, mail, pass){
+    client.query(query, [`%${searchQuery}%`], (err, result) => {
+        if(err) callback(err, null);
+        if(result.length == 0){
+            console.log("Liste bulunamadı");
+            callback(null, null);
+        }
+        const _list = result.map(row => {
+            return{
+                uye_id: row.uye_id,
+                uye_adi: row.uye_adi,
+                uye_soyadi: row.uye_soyadi,
+                uye_mail: row.uye_mail,
+                uye_sifre: row.uye_sifre,
+                uye_adres: row.uye_adres
+            }
+        });
+        console.log(_list);
+        callback(null, _list);
+    });
+    
+}
+
+function addNewUser(name, surname, mail, pass, callback){
     const salt = bcrypt.genSaltSync(10);
     const hashedPass = bcrypt.hashSync(pass, salt);
 
-    client.query("INSERT INTO onur.uye (uye_adi, uye_soyadi, uye_mail, uye_sifre) VALUES (?, ?, ?, ?)", [name,surname,mail,hashedPass], (err, result) => {
-        if(err) throw err;
-        console.log(result);
-    })  
+    const sql = `INSERT INTO onur.uye (uye_adi, uye_soyadi, uye_mail, uye_sifre) VALUES (?, ?, ?, ?);`
+    client.query(sql, [name, surname, mail, hashedPass], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Üye başarıyla eklendi.");
+        callback(null, true);
+    })
 }
 
 function isUserExist(email, callback) {
@@ -826,10 +945,10 @@ function isUserExist(email, callback) {
         }
 
         // Kullanıcı var mı yok mu kontrol et
-        const exist = results.length > 0; 
-        console.log(exist);
-        // Geri arama ile sonucu döndür
-        callback(null, exist);
+        if (results.length === 0) {
+            // Kullanıcı yoksa geri arama ile false döndür
+            callback(null, false);
+        }callback(null, true);
     });
 }
 
@@ -859,7 +978,73 @@ function deleteBook(id, callback){
     })
 }
 
-getKitaplarBySelectedQuery('düşünce')
+function deleteMember(id, callback){
+    const sql = `DELETE FROM onur.uye WHERE uye_id = ?;`
+    client.query(sql, [id], (err, result) => {
+        if (err) callback(err, null);
+        console.log("Uye basariyla silindi.");
+        callback(null, true);
+    }) 
+}
+
+function deleteOrder(id, callback){
+    const sql = `DELETE FROM onur.siparis WHERE siparis_id = ?;` 
+    client.query(sql, [id], (err, result) => {
+        if(err) throw err;
+        console.log("Kitap başarıyla silindi.");
+        callback(null, true);
+    })
+}
+
+function addNewBook(kitapAdi, yazar, tur, sayfa, basim, baski, adet, fiyat, callback){
+    const sql = `INSERT INTO onur.kitaplar (kitap_adi, kitap_yazar, kitap_tur, kitap_sayfa, kitap_basim, kitap_baski, kitap_adet, kitap_fiyat) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+    client.query(sql, [kitapAdi, yazar, tur, sayfa, basim, baski, adet, fiyat], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Kitap başarıyla eklendi.");
+        callback(null, true);
+    })
+}
+
+function addNewOrder(uyeId, kitapId, adet, adres, callback){
+    const sql = `INSERT INTO onur.siparis (uye_id, kitap_id, siparis_adet, siparis_adres) VALUES (?, ?, ?, ?);`
+    client.query(sql, [uyeId, kitapId, adet, adres], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Sipariş başarıyla eklendi.");
+        callback(null, true);
+    })
+}
+
+function updateUser(id, name, surname, callback){
+
+    const sql = `UPDATE onur.uye SET uye_adi = ?, uye_soyadi = ? WHERE uye_id = ?;`
+    client.query(sql, [name, surname, id], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Üye başarıyla güncellendi.");
+        callback(null, true);
+    })
+}
+
+function updatePassword(id, password, callback){
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPass = bcrypt.hashSync(password, salt);
+
+    const sql = `UPDATE onur.uye SET uye_sifre = ? WHERE uye_id = ?;`
+    client.query(sql, [hashedPass, id], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Şifre başarıyla güncellendi.");
+        callback(null, true);
+    })
+}
+
+function deleteAccount(id, callback){
+    const sql = `DELETE FROM onur.uye WHERE uye_id = ?;`    
+    client.query(sql, [id], (err, result) => {
+        if(err) callback(err, null);
+        console.log("Üye başarıyla silindi.");
+        callback(null, true);
+    })
+}
+    
 
 module.exports = { getKategoriAllList, getKategoriById ,getKategoriByName, getKitaplarAllList,
 getKitaplarByBasim, getKitaplarByBaski, getKitaplarById, getKitaplarByName, getKitaplarBySayfa,
@@ -867,6 +1052,8 @@ getKitaplarByTur, getKitaplarByYazar, getKullaniciAllList, getKullaniciById, get
 getPersonelById, getPersonelByTc, getPersonelByPhone, getPersonelListByMail, getPersonelListByName,
 getPersonelListBySurname, getPersonelByUsername, getSiparisByAlimTarih, getSiparisByKitapId, getSiparisBySiparisId,
 getSiparisListByUyeId, getUyeAllList, getUyeById, getUyeByMail, getUyeByName, getUyeBySurname, getUyeKrediKartiGvcByUyeId,
-getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword, deleteBook,getKitaplarBySelectedQuery
-}
+getUyeKrediKartiNoByUyeId, getUyeKrediKartiSktByUyeId, getUyeAdresByUyeId, addNewUser,isUserExist, checkPassword, deleteBook,getKitaplarBySelectedQuery,
+getKitaplarBySearchQuery,addNewBook, getUyeBySearchQuery, deleteMember, getUyelerBySearchQuery, getSiparisAllList, deleteOrder, getBookByOrderId, 
+addNewOrder,updateUser, updatePassword, deleteAccount
+};
 
